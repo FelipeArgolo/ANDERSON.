@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Manutenção</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 20px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .edit-btn {
+            background-color: #ffc107;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+        }
+
+        .edit-btn, .delete-btn {
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            margin: 2px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .edit-btn:hover {
+            background-color: #e0a800;
+        }
+
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 600px) {
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+
+            tr {
+                margin-bottom: 10px;
+                border: 1px solid #ddd;
+                border-radius: 10px;
+                padding: 10px;
+            }
+
+            td {
+                text-align: right;
+                position: relative;
+                padding-left: 50%;
+            }
+
+            td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                font-weight: bold;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Sistema de Manutenção</h1>
+
+    <h2>Função de Cálculo</h2>
+    <p>Insira dois números para somar:</p>
+    <input type="number" id="num1" placeholder="Número 1">
+    <input type="number" id="num2" placeholder="Número 2">
+    <button onclick="calculate()">Calcular</button>
+    <p id="calc-result"></p>
+
+    <h2>Formulário de Manutenção</h2>
+    <div class="form-section">
+        <form id="maintenance-form">
+            <label for="date">Data da Manutenção:</label>
+            <input type="date" id="date" required>
+
+            <label for="error-type">Tipo de Manutenção:</label>
+            <input type="text" id="error-type" value="Corretiva" readonly>
+
+            <label for="description">Descrição da Manutenção:</label>
+            <textarea id="description" required></textarea>
+
+            <label for="responsible">Responsável:</label>
+            <input type="text" id="responsible" required>
+
+            <button type="submit">Adicionar</button>
+        </form>
+        <p id="form-error" class="error"></p>
+    </div>
+
+    <h2>Registros de Manutenção</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Tipo</th>
+                <th>Descrição</th>
+                <th>Responsável</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="maintenance-table">
+            <!-- Registros serão adicionados aqui -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function calculate() {
+        const num1 = parseFloat(document.getElementById("num1").value);
+        const num2 = parseFloat(document.getElementById("num2").value);
+        
+        if (isNaN(num1) || isNaN(num2)) {
+            document.getElementById("calc-result").innerText = "Por favor, insira números válidos.";
+            return;
+        }
+        
+        const result = num1 + num2;
+        document.getElementById("calc-result").innerText = "Resultado: " + result;
+    }
+
+    document.getElementById("maintenance-form").addEventListener("submit", function(event) {
+        event.preventDefault();
+        const date = document.getElementById("date").value;
+        const description = document.getElementById("description").value.trim();
+        const responsible = document.getElementById("responsible").value.trim();
+        
+        if (!date || !description || !responsible) {
+            document.getElementById("form-error").innerText = "Preencha todos os campos obrigatórios!";
+            return;
+        }
+
+        addToTable(date, "Corretiva", description, responsible);
+        document.getElementById("form-error").innerText = "";
+        this.reset();
+    });
+
+    function addToTable(date, type, description, responsible) {
+        const table = document.getElementById("maintenance-table");
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${date}</td>
+            <td>${type}</td>
+            <td>${description}</td>
+            <td>${responsible}</td>
+            <td>
+                <button class="edit-btn" onclick="editRow(this)">Editar</button>
+                <button class="delete-btn" onclick="deleteRow(this)">Excluir</button>
+            </td>
+        `;
+
+        table.appendChild(row);
+    }
+
+    function editRow(button) {
+        const row = button.parentElement.parentElement;
+        const cells = row.getElementsByTagName("td");
+
+        const newDate = prompt("Editar Data:", cells[0].innerText);
+        const newDescription = prompt("Editar Descrição:", cells[2].innerText);
+        const newResponsible = prompt("Editar Responsável:", cells[3].innerText);
+
+        if (newDate && newDescription && newResponsible) {
+            cells[0].innerText = newDate;
+            cells[2].innerText = newDescription;
+            cells[3].innerText = newResponsible;
+        }
+    }
+
+    function deleteRow(button) {
+        if (confirm("Tem certeza que deseja excluir este registro?")) {
+            button.parentElement.parentElement.remove();
+        }
+    }
+</script>
+
+</body>
+</html>
